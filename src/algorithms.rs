@@ -43,6 +43,11 @@ pub enum Algorithm {
 
     /// Edwards-curve Digital Signature Algorithm (EdDSA)
     EdDSA,
+
+    /// NATS Nkey signing algorithm, a wrapper around EdDSA
+    #[cfg(feature = "use_nkey")]
+    #[serde(rename = "ed25519-nkey")]
+    Ed25519Nkey,
 }
 
 impl FromStr for Algorithm {
@@ -61,6 +66,8 @@ impl FromStr for Algorithm {
             "PS512" => Ok(Algorithm::PS512),
             "RS512" => Ok(Algorithm::RS512),
             "EdDSA" => Ok(Algorithm::EdDSA),
+            #[cfg(feature = "use_nkey")]
+            "ed25519-nkey" => Ok(Algorithm::Ed25519Nkey),
             _ => Err(ErrorKind::InvalidAlgorithmName.into()),
         }
     }
@@ -78,6 +85,8 @@ impl Algorithm {
             | Algorithm::PS512 => AlgorithmFamily::Rsa,
             Algorithm::ES256 | Algorithm::ES384 => AlgorithmFamily::Ec,
             Algorithm::EdDSA => AlgorithmFamily::Ed,
+            #[cfg(feature = "use_nkey")]
+            Algorithm::Ed25519Nkey => AlgorithmFamily::Ed,
         }
     }
 }

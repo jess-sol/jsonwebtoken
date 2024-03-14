@@ -50,6 +50,18 @@ pub enum ErrorKind {
     /// When a key is provided with an invalid format
     InvalidKeyFormat,
 
+    #[cfg(feature = "use_nkey")]
+    /// When an nkey seed has invalid length
+    InvalidSeedLength,
+
+    #[cfg(feature = "use_nkey")]
+    /// When an nkey seed has invalid prefix byte (operator, account, user, etc.)
+    InvalidSeedPrefix,
+
+    #[cfg(feature = "use_nkey")]
+    /// When an nkey seed has an invalid CRC checksum
+    InvalidSeedChecksum,
+
     // Validation errors
     /// When a claim required by the validation is not present
     MissingRequiredClaim(String),
@@ -78,6 +90,9 @@ pub enum ErrorKind {
     Utf8(::std::string::FromUtf8Error),
     /// Something unspecified went wrong with crypto
     Crypto(::ring::error::Unspecified),
+    /// Error with data encoding
+    #[cfg(feature = "use_nkey")]
+    DataEncoding(data_encoding::DecodeError),
 }
 
 impl StdError for Error {
@@ -98,10 +113,18 @@ impl StdError for Error {
             ErrorKind::InvalidAlgorithm => None,
             ErrorKind::InvalidAlgorithmName => None,
             ErrorKind::InvalidKeyFormat => None,
+            #[cfg(feature = "use_nkey")]
+            ErrorKind::InvalidSeedPrefix => None,
+            #[cfg(feature = "use_nkey")]
+            ErrorKind::InvalidSeedLength => None,
+            #[cfg(feature = "use_nkey")]
+            ErrorKind::InvalidSeedChecksum => None,
             ErrorKind::Base64(err) => Some(err),
             ErrorKind::Json(err) => Some(err.as_ref()),
             ErrorKind::Utf8(err) => Some(err),
             ErrorKind::Crypto(err) => Some(err),
+            #[cfg(feature = "use_nkey")]
+            ErrorKind::DataEncoding(err) => Some(err),
         }
     }
 }
@@ -122,12 +145,18 @@ impl fmt::Display for Error {
             | ErrorKind::InvalidAlgorithm
             | ErrorKind::InvalidKeyFormat
             | ErrorKind::InvalidAlgorithmName => write!(f, "{:?}", self.0),
+            #[cfg(feature = "use_nkey")]
+            ErrorKind::InvalidSeedPrefix
+            | ErrorKind::InvalidSeedLength
+            | ErrorKind::InvalidSeedChecksum => write!(f, "{:?}", self.0),
             ErrorKind::MissingRequiredClaim(c) => write!(f, "Missing required claim: {}", c),
             ErrorKind::InvalidRsaKey(msg) => write!(f, "RSA key invalid: {}", msg),
             ErrorKind::Json(err) => write!(f, "JSON error: {}", err),
             ErrorKind::Utf8(err) => write!(f, "UTF-8 error: {}", err),
             ErrorKind::Crypto(err) => write!(f, "Crypto error: {}", err),
             ErrorKind::Base64(err) => write!(f, "Base64 error: {}", err),
+            #[cfg(feature = "use_nkey")]
+            ErrorKind::DataEncoding(err) => write!(f, "Data encoding error: {}", err),
         }
     }
 }

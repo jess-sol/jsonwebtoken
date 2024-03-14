@@ -82,6 +82,19 @@ impl DecodingKey {
         })
     }
 
+    /// Loads a key from a given Nkey seed. TODO
+    #[cfg(feature = "use_nkey")]
+    pub fn from_nkey_seed(seed: &str) -> Result<Self> {
+        use crate::crypto::nkey::from_pubkey;
+
+        let seed = from_pubkey(seed)?;
+
+        Ok(DecodingKey {
+            family: AlgorithmFamily::Ed,
+            kind: DecodingKeyKind::SecretOrDer(seed.to_vec()),
+        })
+    }
+
     /// If you have (n, e) RSA public key components as strings, use this.
     pub fn from_rsa_components(modulus: &str, exponent: &str) -> Result<Self> {
         let n = b64_decode(modulus)?;

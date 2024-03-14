@@ -73,6 +73,33 @@ fn round_trip_claim() {
     assert!(token_data.header.kid.is_none());
 }
 
+#[cfg(feature = "use_nkey")]
+#[test]
+#[wasm_bindgen_test]
+fn round_trip_claim_nkey() {
+    let my_claims = Claims {
+        sub: "b@b.com".to_string(),
+        company: "ACME".to_string(),
+        exp: OffsetDateTime::now_utc().unix_timestamp() + 10000,
+    };
+    let token = encode(
+        &Header::new(Algorithm::Ed25519Nkey),
+        &my_claims,
+        &EncodingKey::from_nkey_seed("SUAKDQXGDGFHSTGDQKSZNZCP2UP63I3STR4QXB5MSMCLWYKDGXJKSQM2EU")
+            .unwrap(),
+    )
+    .unwrap();
+    let token_data = decode::<Claims>(
+        &token,
+        &DecodingKey::from_nkey_seed("UBLC3ATUGSTK53LKOZOU6WCTT3R3INOJNJ7VFS3QYY24545EBU4DK5H4")
+            .unwrap(),
+        &Validation::new(Algorithm::Ed25519Nkey),
+    )
+    .unwrap();
+    assert_eq!(my_claims, token_data.claims);
+    assert!(token_data.header.kid.is_none());
+}
+
 #[test]
 #[wasm_bindgen_test]
 fn decode_token() {

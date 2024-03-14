@@ -9,6 +9,8 @@ use crate::serialization::{b64_decode, b64_encode};
 
 pub(crate) mod ecdsa;
 pub(crate) mod eddsa;
+#[cfg(feature = "use_nkey")]
+pub(crate) mod nkey;
 pub(crate) mod rsa;
 
 /// The actual HS signing + encoding
@@ -33,6 +35,8 @@ pub fn sign(message: &[u8], key: &EncodingKey, algorithm: Algorithm) -> Result<S
         }
 
         Algorithm::EdDSA => eddsa::sign(key.inner(), message),
+        #[cfg(feature = "use_nkey")]
+        Algorithm::Ed25519Nkey => nkey::sign(key.inner(), message),
 
         Algorithm::RS256
         | Algorithm::RS384
@@ -84,6 +88,13 @@ pub fn verify(
             key.as_bytes(),
         ),
         Algorithm::EdDSA => verify_ring(
+            eddsa::alg_to_ec_verification(algorithm),
+            signature,
+            message,
+            key.as_bytes(),
+        ),
+        #[cfg(feature = "use_nkey")]
+        Algorithm::Ed25519Nkey => verify_ring(
             eddsa::alg_to_ec_verification(algorithm),
             signature,
             message,

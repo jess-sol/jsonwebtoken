@@ -45,6 +45,15 @@ impl EncodingKey {
         Ok(EncodingKey { family: AlgorithmFamily::Rsa, content: content.to_vec() })
     }
 
+    /// Loads a key from a given Nkey seed. TODO
+    #[cfg(feature = "use_nkey")]
+    pub fn from_nkey_seed(seed: &str) -> Result<Self> {
+        use crate::crypto::nkey::from_seed;
+        let (_, seed) = from_seed(seed).unwrap();
+
+        Ok(EncodingKey { family: AlgorithmFamily::Ed, content: seed.to_vec() })
+    }
+
     /// If you are loading a ECDSA key from a .pem file
     /// This errors if the key is not a valid private EC key
     /// Only exists if the feature `use_pem` is enabled.

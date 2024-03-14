@@ -50,6 +50,26 @@ fn round_trip_sign_verification_pem() {
     assert!(is_valid);
 }
 
+#[cfg(feature = "use_nkey")]
+#[test]
+#[wasm_bindgen_test]
+fn round_trip_sign_verification_nkey() {
+    let signing_key =
+        EncodingKey::from_nkey_seed("SUAMB5TCKJL3GWWYCBVSJTEADHL4AG7SSNCWDFUDKYZLRG2A5FKJKBM77Y")
+            .unwrap();
+    let encrypted = sign(b"hello world", &signing_key, Algorithm::Ed25519Nkey).unwrap();
+
+    let is_valid = verify(
+        &encrypted,
+        b"hello world",
+        &DecodingKey::from_nkey_seed("UDJTS4YRXY4PWCMBE7NBNT23Q4UKZMKZSVFQM2EYBQBK7OBPNKLPMGLA")
+            .unwrap(),
+        Algorithm::Ed25519Nkey,
+    )
+    .unwrap();
+    assert!(is_valid);
+}
+
 #[cfg(feature = "use_pem")]
 #[test]
 #[wasm_bindgen_test]

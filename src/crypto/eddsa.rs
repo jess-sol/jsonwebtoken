@@ -10,6 +10,8 @@ pub(crate) fn alg_to_ec_verification(alg: Algorithm) -> &'static signature::EdDS
     // parameter.
     match alg {
         Algorithm::EdDSA => &signature::ED25519,
+        #[cfg(feature = "use_nkey")]
+        Algorithm::Ed25519Nkey => &signature::ED25519,
         _ => unreachable!("Tried to get EdDSA alg for a non-EdDSA algorithm"),
     }
 }
