@@ -4,6 +4,8 @@
 
 See [JSON Web Tokens](https://en.wikipedia.org/wiki/JSON_Web_Token) for more information on what JSON Web Tokens are.
 
+This fork of `jsonwebtoken` adds optional support for NATS nkeys.
+
 ## Installation
 Add the following to Cargo.toml:
 
